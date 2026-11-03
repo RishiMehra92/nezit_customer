@@ -1,0 +1,71 @@
+{
+  "project_info": {
+    "project_number": "527902933409",
+    "firebase_url": "https://nezit-d6cdf-default-rtdb.firebaseio.com",
+    "project_id": "nezit-d6cdf",
+    "storage_bucket": "nezit-d6cdf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:527902933409:android:3075a7ee2180a5f4aa0be0",
+        "android_client_info": {
+          "package_name": "com.nezit.customer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "527902933409-f3ll5fsv3ijpredvkulcu2nb0s0rremt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nezit.customer",
+            "certificate_hash": "24692042b44db3d83dc7f568a2009148d5fe87b6"
+          }
+        },
+        {
+          "client_id": "527902933409-k8t37nflj1l9tb7b7n081g4rqt7159oo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nezit.customer",
+            "certificate_hash": "ceb1cece33c43884b2866a0a65c32112e62b28f0"
+          }
+        },
+        {
+          "client_id": "527902933409-mjpr54mdtrtu1t9bj7l4skrimeo2dvcm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.nezit.customer",
+            "certificate_hash": "1e4589a1d292bc0b60b2681b9db07b66407cf8b0"
+          }
+        },
+        {
+          "client_id": "527902933409-29q1ddtevhmds07nkjaci5oretva1bgp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAnAW6mUS7ZCMIviym4zqKzdnoEVL2vHr0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "527902933409-29q1ddtevhmds07nkjaci5oretva1bgp.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "527902933409-4kqi5kebp9pqg7nsr6v664d1gjenv2n9.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.nezit.customer"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
