@@ -933,6 +933,7 @@ const Map<String, String> defaultEnglishLabels = {
   "selectLanguage": "Select Language",
   "selectLocation": "Select Location",
   "selectOrderOrTopicSubtitle": "Select an order or topic below to begin chatting with customer support.",
+  "makePayment": "Make Payment",
   "selectPaymentMethod": "Select payment method",
   "selectReason": "Select a reason",
   "selectTimeSlot": "SELECT A TIME SLOT",

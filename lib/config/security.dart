@@ -6,7 +6,6 @@ Map<String, String>? get headers {
   if (token != null) {
     return {
       'Content-Type': 'application/json',
-      'content-length': '0',
       'Accept': 'application/json',
       'Authorization': 'Bearer $token',
       'X-Locale': locale,
@@ -14,7 +13,6 @@ Map<String, String>? get headers {
   } else {
     return {
       'Content-Type': 'application/json',
-      'content-length': '0',
       'Accept': 'application/json',
       'X-Locale': locale,
     };

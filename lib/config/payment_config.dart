@@ -212,8 +212,7 @@ class PaymentConfig {
   /// Get payment methods filtered by settings availability
   static List<PaymentMethod> getEnabledPaymentMethods() {
     return _paymentMethods
-        .where((method) =>
-            method.isAvailable && isPaymentMethodEnabledInSettings(method.id))
+        .where((method) => method.isAvailable && isPaymentMethodEnabledInSettings(method.id))
         .toList();
   }
 
@@ -223,23 +222,39 @@ class PaymentConfig {
     List<dynamic>? availableMethods,
   }) {
     if (availableMethods != null && availableMethods.isNotEmpty) {
-      final validKeys = availableMethods.where((m) {
+      final validKeys = <String>{};
+      for (final m in availableMethods) {
+        bool isEnabled = false;
+        bool isAvailable = false;
+        String key = '';
+        String name = '';
+
         if (m is Map) {
-          return (m['is_enabled'] == true) && (m['is_available'] == true);
+          isEnabled = m['is_enabled'] == true || m['is_enabled'] == 1 || m['is_enabled'] == 'true';
+          isAvailable =
+              m['is_available'] == true || m['is_available'] == 1 || m['is_available'] == 'true';
+          key = m['key']?.toString().toLowerCase().trim() ?? '';
+          name = m['name']?.toString().toLowerCase().trim() ?? '';
+        } else {
+          try {
+            isEnabled = m.isEnabled == true;
+            isAvailable = m.isAvailable == true;
+            key = m.key.toString().toLowerCase().trim();
+            name = m.name.toString().toLowerCase().trim();
+          } catch (_) {}
         }
-        try {
-          return (m.isEnabled == true) && (m.isAvailable == true);
-        } catch (_) {
-          return true;
+
+        if (isEnabled && isAvailable) {
+          if (key.isNotEmpty) {
+            validKeys.add(key);
+            validKeys.add(key.replaceAll('payment', '').replaceAll('_payment', '').trim());
+          }
+          if (name.isNotEmpty) {
+            validKeys.add(name);
+            validKeys.add(name.replaceAll('payment', '').replaceAll('_payment', '').trim());
+          }
         }
-      }).map((m) {
-        if (m is Map) return m['key']?.toString().toLowerCase().trim() ?? '';
-        try {
-          return m.key.toString().toLowerCase().trim();
-        } catch (_) {
-          return '';
-        }
-      }).where((k) => k.isNotEmpty).toSet();
+      }
 
       return _paymentMethods
           .where((method) =>

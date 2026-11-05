@@ -1,10 +1,10 @@
 import 'package:hyper_local/utils/extensions/translation_extension.dart';
+
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
 
 import 'package:intl/intl.dart';
-
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +20,7 @@ import 'package:hyper_local/utils/widgets/custom_button.dart';
 import 'package:hyper_local/utils/widgets/custom_dotted_divider.dart';
 import 'package:hyper_local/utils/widgets/custom_image_container.dart';
 import 'package:open_filex/open_filex.dart';
+
 import '../../../bloc/user_cart_bloc/user_cart_bloc.dart';
 import '../../../bloc/user_cart_bloc/user_cart_event.dart';
 import '../../../bloc/user_cart_bloc/user_cart_state.dart';
@@ -34,6 +35,7 @@ import '../../save_for_later_page/bloc/save_for_later_bloc/save_for_later_bloc.d
 import '../bloc/attachment/attachment_bloc.dart';
 import '../model/get_cart_model.dart';
 import 'addon_edit_bottom_sheet.dart';
+
 import 'package:path/path.dart' as path;
 
 class CartItemAttachment {
@@ -80,7 +82,9 @@ List<StoreGroup> groupCartItemsByStore(List<CartItem> items, {List<Store>? store
     if (!groupedItems.containsKey(storeKey)) {
       ScheduledDeliveryInfo? schedInfo = item.store?.scheduledDeliveryInfo;
       if (schedInfo == null && stores != null && stores.isNotEmpty) {
-        final match = stores.firstWhereOrNull((s) => s.id == item.store?.id || s.slug == item.store?.slug);
+        final match = stores.firstWhereOrNull(
+          (s) => s.id == item.store?.id || s.slug == item.store?.slug,
+        );
         schedInfo = match?.scheduledDeliveryInfo;
       }
 
@@ -137,8 +141,14 @@ class CartWidget extends StatelessWidget {
   final DateTime? selectedDate;
   final String? selectedTimeSlot;
   final int? selectedTimeSlotId;
-  final void Function(DateTime? date, String? timeSlot, int? slotId, String? startTime, String? endTime)
-      onScheduledDateTimeChanged;
+  final void Function(
+    DateTime? date,
+    String? timeSlot,
+    int? slotId,
+    String? startTime,
+    String? endTime,
+  )
+  onScheduledDateTimeChanged;
 
   const CartWidget({
     super.key,
@@ -209,8 +219,11 @@ class CartWidget extends StatelessWidget {
                 deliveryType: deliveryType,
                 pickupInstructions: storeGroup.pickupInstructions,
                 storeId: storeGroup.items.isNotEmpty ? storeGroup.items.first.store?.id : null,
-                scheduledDeliveryInfo: storeGroup.scheduledDeliveryInfo ??
-                    (storeGroup.items.isNotEmpty ? storeGroup.items.first.store?.scheduledDeliveryInfo : null),
+                scheduledDeliveryInfo:
+                    storeGroup.scheduledDeliveryInfo ??
+                    (storeGroup.items.isNotEmpty
+                        ? storeGroup.items.first.store?.scheduledDeliveryInfo
+                        : null),
                 hasMultipleStores: groupedStores.length > 1,
                 selectedDate: selectedDate,
                 selectedTimeSlot: selectedTimeSlot,
@@ -228,15 +241,14 @@ class CartWidget extends StatelessWidget {
                     } else {
                       GoRouter.of(context).push(
                         AppRoutes.nearbyStoreDetails,
-                        extra: {
-                          'store-slug': storeGroup.slug,
-                          'store-name': storeGroup.name,
-                        },
+                        extra: {'store-slug': storeGroup.slug, 'store-name': storeGroup.name},
                       );
                     }
                   },
-                  borderRadius:
-                      BorderRadius.only(bottomLeft: Radius.circular(16.r), bottomRight: Radius.circular(16.r)),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(16.r),
+                    bottomRight: Radius.circular(16.r),
+                  ),
                   child: Ink(
                     child: Opacity(
                       opacity: (storeGroup.storeStatus == false) ? 0.3 : 1,
@@ -253,18 +265,17 @@ class CartWidget extends StatelessWidget {
                                   ? Theme.of(context).colorScheme.outlineVariant
                                   : AppTheme.primaryColor,
                             ),
-                            SizedBox(
-                              width: 5.w,
-                            ),
+                            SizedBox(width: 5.w),
                             Text(
                               context.tr('addMoreItems'),
                               style: TextStyle(
-                                  color: (storeGroup.storeStatus == false)
-                                      ? Theme.of(context).colorScheme.outlineVariant
-                                      : AppTheme.primaryColor,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: isTablet(context) ? 20 : 14.sp),
-                            )
+                                color: (storeGroup.storeStatus == false)
+                                    ? Theme.of(context).colorScheme.outlineVariant
+                                    : AppTheme.primaryColor,
+                                fontWeight: FontWeight.w600,
+                                fontSize: isTablet(context) ? 20 : 14.sp,
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -313,8 +324,14 @@ class StoreCartSection extends StatefulWidget {
   final String? selectedTimeSlot;
   final int? selectedTimeSlotId;
   final String? currencyCode;
-  final void Function(DateTime? date, String? timeSlot, int? slotId, String? startTime, String? endTime)
-      onScheduledDateTimeChanged;
+  final void Function(
+    DateTime? date,
+    String? timeSlot,
+    int? slotId,
+    String? startTime,
+    String? endTime,
+  )
+  onScheduledDateTimeChanged;
 
   const StoreCartSection({
     super.key,
@@ -369,14 +386,21 @@ class _StoreCartSectionState extends State<StoreCartSection> {
         });
       }
     }
-    if (widget.deliveryType == 'pickup' && oldWidget.deliveryType != 'pickup' && widget.selectedDate != null) {
+    if (widget.deliveryType == 'pickup' &&
+        oldWidget.deliveryType != 'pickup' &&
+        widget.selectedDate != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.onScheduledDateTimeChanged(null, null, null, null, null);
         showDialog(
           context: context,
           builder: (context) => AlertDialog(
             title: Text(context.tr('pickupOrder', fallback: 'Pickup Order')),
-            content: Text(context.tr('pickupScheduleWarning', fallback: 'Pickup does not support scheduled delivery dates.')),
+            content: Text(
+              context.tr(
+                'pickupScheduleWarning',
+                fallback: 'Pickup does not support scheduled delivery dates.',
+              ),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
@@ -390,11 +414,13 @@ class _StoreCartSectionState extends State<StoreCartSection> {
   }
 
   Future<void> _handleScheduleDeliveryTap() async {
-
     if (widget.deliveryType == 'pickup') {
       ToastManager.show(
         context: context,
-        message: context.tr('pickupScheduleWarning', fallback: 'Pickup does not support scheduled delivery dates.'),
+        message: context.tr(
+          'pickupScheduleWarning',
+          fallback: 'Pickup does not support scheduled delivery dates.',
+        ),
         type: ToastType.warning,
       );
       return;
@@ -403,7 +429,10 @@ class _StoreCartSectionState extends State<StoreCartSection> {
     if (widget.hasMultipleStores) {
       ToastManager.show(
         context: context,
-        message: context.tr('singleStoreScheduleWarning', fallback: 'To place a scheduled order, please checkout from a single store.'),
+        message: context.tr(
+          'singleStoreScheduleWarning',
+          fallback: 'To place a scheduled order, please checkout from a single store.',
+        ),
         type: ToastType.warning,
       );
       return;
@@ -413,7 +442,10 @@ class _StoreCartSectionState extends State<StoreCartSection> {
     if (info == null || info.isEnabled == false) {
       ToastManager.show(
         context: context,
-        message: context.tr('storeScheduleUnavailable', fallback: 'Schedule delivery is not available for this Store'),
+        message: context.tr(
+          'storeScheduleUnavailable',
+          fallback: 'Schedule delivery is not available for this Store',
+        ),
         type: ToastType.warning,
       );
       return;
@@ -428,14 +460,18 @@ class _StoreCartSectionState extends State<StoreCartSection> {
       initialTimeSlotId: widget.selectedTimeSlotId,
       maxDays: info.maxDays ?? 30,
       availableDays: info.availableDays,
-      onFetchSlots: (date) => CartRepository().getScheduledDeliverySlots(
-        storeId: storeId!,
-        date: date,
-      ),
+      onFetchSlots: (date) =>
+          CartRepository().getScheduledDeliverySlots(storeId: storeId!, date: date),
     );
 
     if (result != null) {
-      widget.onScheduledDateTimeChanged(result.date, result.timeSlot, result.slotId, result.startTime, result.endTime);
+      widget.onScheduledDateTimeChanged(
+        result.date,
+        result.timeSlot,
+        result.slotId,
+        result.startTime,
+        result.endTime,
+      );
     }
   }
 
@@ -448,7 +484,8 @@ class _StoreCartSectionState extends State<StoreCartSection> {
 
   @override
   Widget build(BuildContext context) {
-    final hasPickupInstructions = widget.deliveryType == 'pickup' &&
+    final hasPickupInstructions =
+        widget.deliveryType == 'pickup' &&
         widget.pickupInstructions != null &&
         widget.pickupInstructions!.trim().isNotEmpty;
 
@@ -463,10 +500,7 @@ class _StoreCartSectionState extends State<StoreCartSection> {
             decoration: BoxDecoration(
               color: AppTheme.primaryColor.withValues(alpha: isDarkMode(context) ? 0.12 : 0.06),
               borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(
-                color: AppTheme.primaryColor.withValues(alpha: 0.15),
-                width: 1,
-              ),
+              border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.15), width: 1),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12.r),
@@ -474,10 +508,7 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Container(
-                      width: 4.w,
-                      color: AppTheme.primaryColor,
-                    ),
+                    Container(width: 4.w, color: AppTheme.primaryColor),
                     SizedBox(width: 12.w),
                     Expanded(
                       child: Padding(
@@ -499,7 +530,6 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                                     fontSize: isTablet(context) ? 16.sp : 12.sp,
                                     fontWeight: FontWeight.w600,
                                     color: AppTheme.primaryColor,
-                                    fontFamily: AppTheme.fontFamily,
                                   ),
                                 ),
                               ],
@@ -511,7 +541,6 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                                 fontSize: isTablet(context) ? 15.sp : 12.sp,
                                 fontWeight: FontWeight.w400,
                                 color: Theme.of(context).colorScheme.tertiary,
-                                fontFamily: AppTheme.fontFamily,
                                 height: 1.4,
                               ),
                             ),
@@ -526,10 +555,12 @@ class _StoreCartSectionState extends State<StoreCartSection> {
             ),
           ),
         ],
-        ...widget.items.map((item) => Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 0),
-              child: _buildCartItem(context, item),
-            )),
+        ...widget.items.map(
+          (item) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 0),
+            child: _buildCartItem(context, item),
+          ),
+        ),
       ],
     );
   }
@@ -553,48 +584,47 @@ class _StoreCartSectionState extends State<StoreCartSection> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  AppHelpers.systemVendorTypeIsSingle ? (context.tr('items', fallback: 'Items')) : widget.storeName,
+                  AppHelpers.systemVendorTypeIsSingle
+                      ? (context.tr('items', fallback: 'Items'))
+                      : widget.storeName,
                   overflow: TextOverflow.ellipsis,
                   maxLines: 3,
-                  style: widget.headerTextStyle ??
+                  style:
+                      widget.headerTextStyle ??
                       TextStyle(
                         fontSize: isTablet(context) ? 24 : 15.sp,
                         fontWeight: FontWeight.w600,
-                        fontFamily: AppTheme.fontFamily,
                       ),
                 ),
                 if (widget.storeStatus) ...[
                   SizedBox(height: 2.h),
                   Text(
-                    context.tr('nProducts', positionalArgs: [widget.items.length], fallback: "${widget.items.length} Product${widget.items.length != 1 ? 's' : ''}"),
-                    style: widget.deliveryTextStyle ??
+                    context.tr(
+                      'nProducts',
+                      positionalArgs: [widget.items.length],
+                      fallback:
+                          "${widget.items.length} ${widget.items.length == 1 ? context.tr('product', fallback: 'Product') : context.tr('products', fallback: 'Products')}",
+                    ),
+                    style:
+                        widget.deliveryTextStyle ??
                         TextStyle(
                           fontSize: isTablet(context) ? 18 : 12.sp,
                           color: Colors.grey,
                           fontWeight: FontWeight.w400,
-                          fontFamily: AppTheme.fontFamily,
                         ),
                   ),
                 ],
               ],
             ),
           ),
-          const SizedBox(
-            width: 10,
-          ),
+          const SizedBox(width: 10),
           if (!widget.storeStatus)
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
-                  TablerIcons.x,
-                  color: AppTheme.errorColor,
-                  size: 16,
-                ),
-                const SizedBox(
-                  width: 5,
-                ),
+                const Icon(TablerIcons.x, color: AppTheme.errorColor, size: 16),
+                const SizedBox(width: 5),
                 Text(
                   context.tr('currentlyClosed', fallback: 'Currently closed'),
                   style: const TextStyle(color: AppTheme.errorColor),
@@ -602,7 +632,8 @@ class _StoreCartSectionState extends State<StoreCartSection> {
               ],
             )
           else if (widget.deliveryType != 'pickup' &&
-              (widget.scheduledDeliveryInfo == null || widget.scheduledDeliveryInfo?.isEnabled != false))
+              (widget.scheduledDeliveryInfo == null ||
+                  widget.scheduledDeliveryInfo?.isEnabled != false))
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
@@ -620,11 +651,7 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                         width: 1,
                       ),
                     ),
-                    child: const Icon(
-                      TablerIcons.calendar,
-                      size: 18,
-                      color: AppTheme.primaryColor,
-                    ),
+                    child: const Icon(TablerIcons.calendar, size: 18, color: AppTheme.primaryColor),
                   ),
                 ),
                 if (widget.selectedDate != null) ...[
@@ -638,7 +665,6 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                           fontSize: isTablet(context) ? 14 : 9.sp,
                           color: AppTheme.primaryColor,
                           fontWeight: FontWeight.w500,
-                          fontFamily: AppTheme.fontFamily,
                         ),
                       ),
                       SizedBox(width: 2.w),
@@ -646,11 +672,7 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                         onTap: () {
                           widget.onScheduledDateTimeChanged(null, null, null, null, null);
                         },
-                        child: const Icon(
-                          TablerIcons.x,
-                          size: 12,
-                          color: Colors.grey,
-                        ),
+                        child: const Icon(TablerIcons.x, size: 12, color: Colors.grey),
                       ),
                     ],
                   ),
@@ -703,10 +725,9 @@ class _StoreCartSectionState extends State<StoreCartSection> {
       confirmDismiss: (direction) async {
         if (direction == DismissDirection.startToEnd) {
           // Save for Later → trigger API, but don't dismiss yet
-          context.read<SaveForLaterBloc>().add(SaveForLaterRequest(
-                cartItemId: item.id!,
-                cartItemName: item.product!.name!,
-              ));
+          context.read<SaveForLaterBloc>().add(
+            SaveForLaterRequest(cartItemId: item.id!, cartItemName: item.product!.name!),
+          );
           return false; // Don't dismiss
         }
 
@@ -718,7 +739,11 @@ class _StoreCartSectionState extends State<StoreCartSection> {
               return AlertDialog(
                 title: Text(context.tr('removeItem', fallback: "Remove item")),
                 content: Text(
-                  context.tr('areYouSureYouWantToRemoveItemFromCart', positionalArgs: [item.product!.name!], fallback: "Are you sure you want to remove ${item.product!.name} from cart?"),
+                  context.tr(
+                    'areYouSureYouWantToRemoveItemFromCart',
+                    positionalArgs: [item.product!.name!],
+                    fallback: "Are you sure you want to remove ${item.product!.name} from cart?",
+                  ),
                 ),
                 actions: [
                   TextButton(
@@ -736,14 +761,17 @@ class _StoreCartSectionState extends State<StoreCartSection> {
 
           if (shouldDelete == true) {
             if (context.mounted) {
-              context.read<CartBloc>().add(RemoveFromCart(
+              context.read<CartBloc>().add(
+                RemoveFromCart(
                   cartKey: _cartKeyFor(item),
                   context: context,
                   addressId: widget.addressId,
                   promoCode: widget.promoCode,
                   useWallet: widget.useWallet,
                   rushDelivery: widget.rushDelivery,
-                  isFromCartPage: true));
+                  isFromCartPage: true,
+                ),
+              );
             }
             // Trigger remove API
             widget.onRemoveItem(item.id.toString());
@@ -755,13 +783,16 @@ class _StoreCartSectionState extends State<StoreCartSection> {
       },
 
       // REMOVE onDismissed completely → we control dismissal manually
-
       child: Opacity(
         opacity: (widget.storeStatus == false) ? 0.3 : 1,
         child: Container(
           decoration: BoxDecoration(
             border: Border(
-                top: BorderSide(color: isDarkMode(context) ? Colors.grey.shade800 : Colors.grey[200]!, width: 0.5)),
+              top: BorderSide(
+                color: isDarkMode(context) ? Colors.grey.shade800 : Colors.grey[200]!,
+                width: 0.5,
+              ),
+            ),
           ),
           padding: widget.padding ?? const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
           child: Column(
@@ -815,10 +846,7 @@ class _StoreCartSectionState extends State<StoreCartSection> {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: CustomImageContainer(
-          imagePath: imageUrl,
-          fit: BoxFit.contain,
-        ),
+        child: CustomImageContainer(imagePath: imageUrl, fit: BoxFit.contain),
       ),
     );
   }
@@ -827,9 +855,13 @@ class _StoreCartSectionState extends State<StoreCartSection> {
     final theme = Theme.of(context);
 
     final String variantTitle = item.variant?.title ?? '';
-    final String addonsText = item.addons.map((a) => a.item?.title ?? '').where((t) => t.isNotEmpty).join(', ');
-    final String description =
-        addonsText.isEmpty ? variantTitle : (variantTitle.isEmpty ? addonsText : '$variantTitle, $addonsText');
+    final String addonsText = item.addons
+        .map((a) => a.item?.title ?? '')
+        .where((t) => t.isNotEmpty)
+        .join(', ');
+    final String description = addonsText.isEmpty
+        ? variantTitle
+        : (variantTitle.isEmpty ? addonsText : '$variantTitle, $addonsText');
 
     return SizedBox(
       width: 125.w,
@@ -839,8 +871,7 @@ class _StoreCartSectionState extends State<StoreCartSection> {
         children: [
           Text(
             item.product!.name!,
-            style: TextStyle(
-                fontSize: isTablet(context) ? 20 : 12.sp, fontWeight: FontWeight.w500, fontFamily: AppTheme.fontFamily),
+            style: TextStyle(fontSize: isTablet(context) ? 20 : 12.sp, fontWeight: FontWeight.w500),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
@@ -852,7 +883,6 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                 style: TextStyle(
                   fontSize: isTablet(context) ? 15 : 10.sp,
                   fontWeight: FontWeight.w300,
-                  fontFamily: AppTheme.fontFamily,
                   color: theme.colorScheme.tertiary.withValues(alpha: 0.75),
                   height: 1.3,
                 ),
@@ -888,7 +918,6 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                           fontSize: isTablet(context) ? 15 : 11.sp,
                           fontWeight: FontWeight.w600,
                           color: AppTheme.primaryColor,
-                          fontFamily: AppTheme.fontFamily,
                         ),
                       ),
                       SizedBox(width: 2.w),
@@ -914,9 +943,7 @@ class _StoreCartSectionState extends State<StoreCartSection> {
     return BlocSelector<CartBloc, CartState, int?>(
       selector: (state) {
         if (state is CartLoaded) {
-          final localItem = state.items.firstWhereOrNull(
-            (i) => i.cartKey == cartKey,
-          );
+          final localItem = state.items.firstWhereOrNull((i) => i.cartKey == cartKey);
           return localItem?.quantity;
         }
         return null; // will fallback to item.quantity
@@ -960,20 +987,24 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                             HapticFeedback.lightImpact();
                             if (displayQty <= item.product!.quantityStepSize!) {
                               // Remove from local
-                              context.read<CartBloc>().add(RemoveFromCart(
+                              context.read<CartBloc>().add(
+                                RemoveFromCart(
                                   cartKey: cartKey,
                                   context: context,
                                   addressId: widget.addressId,
                                   promoCode: widget.promoCode,
                                   useWallet: widget.useWallet,
                                   rushDelivery: widget.rushDelivery,
-                                  isFromCartPage: true));
+                                  isFromCartPage: true,
+                                ),
+                              );
                               // Trigger server remove
                             } else {
                               final newQty = displayQty - item.product!.quantityStepSize!;
                               log('Quantity Change $newQty');
                               // Update local
-                              context.read<CartBloc>().add(UpdateCartQty(
+                              context.read<CartBloc>().add(
+                                UpdateCartQty(
                                   cartKey: cartKey,
                                   quantity: newQty,
                                   cartItemId: item.id,
@@ -982,7 +1013,9 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                                   promoCode: widget.promoCode,
                                   useWallet: widget.useWallet,
                                   rushDelivery: widget.rushDelivery,
-                                  isFromCartPage: true));
+                                  isFromCartPage: true,
+                                ),
+                              );
                             }
                           },
                   ),
@@ -992,10 +1025,7 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Text(
                       '$displayQty',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                     ),
                   ),
 
@@ -1018,12 +1048,17 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                             );
 
                             if (error != null) {
-                              ToastManager.show(context: context, message: error, type: ToastType.error);
+                              ToastManager.show(
+                                context: context,
+                                message: error,
+                                type: ToastType.error,
+                              );
                               return;
                             }
 
                             // Plain quantity bump in every case — the customize sheet
-                            context.read<CartBloc>().add(UpdateCartQty(
+                            context.read<CartBloc>().add(
+                              UpdateCartQty(
                                 cartKey: cartKey,
                                 quantity: newQty,
                                 cartItemId: item.id,
@@ -1032,7 +1067,9 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                                 promoCode: widget.promoCode,
                                 useWallet: widget.useWallet,
                                 rushDelivery: widget.rushDelivery,
-                                isFromCartPage: true));
+                                isFromCartPage: true,
+                              ),
+                            );
                             // Trigger server update
                           },
                   ),
@@ -1051,10 +1088,7 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                         child: const CircularProgressIndicator(strokeWidth: 2),
                       ),
                     )
-                  : const SizedBox(
-                      key: ValueKey('cart-idle'),
-                      height: 16,
-                    ),
+                  : const SizedBox(key: ValueKey('cart-idle'), height: 16),
             ),
           ],
         );
@@ -1062,20 +1096,13 @@ class _StoreCartSectionState extends State<StoreCartSection> {
     );
   }
 
-  Widget _buildQtyBtn({
-    required IconData icon,
-    required VoidCallback? onTap,
-  }) {
+  Widget _buildQtyBtn({required IconData icon, required VoidCallback? onTap}) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(6),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Icon(
-          icon,
-          size: 18,
-          color: onTap == null ? Colors.grey : AppTheme.primaryColor,
-        ),
+        child: Icon(icon, size: 18, color: onTap == null ? Colors.grey : AppTheme.primaryColor),
       ),
     );
   }
@@ -1085,10 +1112,7 @@ class _StoreCartSectionState extends State<StoreCartSection> {
       return 0.0;
     }
 
-    return item.addons.fold<double>(
-      0.0,
-      (total, addon) => total + (addon.price ?? 0.0),
-    );
+    return item.addons.fold<double>(0.0, (total, addon) => total + (addon.price ?? 0.0));
   }
 
   Widget _buildPriceSection(CartItem item) {
@@ -1097,9 +1121,7 @@ class _StoreCartSectionState extends State<StoreCartSection> {
     return BlocSelector<CartBloc, CartState, int?>(
       selector: (state) {
         if (state is CartLoaded) {
-          final localItem = state.items.firstWhereOrNull(
-            (i) => i.cartKey == cartKey,
-          );
+          final localItem = state.items.firstWhereOrNull((i) => i.cartKey == cartKey);
           return localItem?.quantity;
         }
         return null;
@@ -1121,28 +1143,32 @@ class _StoreCartSectionState extends State<StoreCartSection> {
         // final double totalSale = (item.totalItemSpecialPrice != null && item.totalItemSpecialPrice!
 
         final double totalSale =
-            (salePrice > 0 ? salePrice * displayQty : regularPrice * displayQty) + (localTotalAddon * displayQty);
+            (salePrice > 0 ? salePrice * displayQty : regularPrice * displayQty) +
+            (localTotalAddon * displayQty);
 
         // What price to show as main (bold) price
         final bool hasRealDiscount =
             salePrice > 0 && salePrice < regularPrice && (regularPrice - salePrice).abs() > 0.01;
 
         final double mainTotal = hasRealDiscount ? totalSale : totalRegular;
-        final String? itemCurrency = item.variant?.currencyCode ?? item.product?.currencyCode ?? widget.currencyCode;
+        final String? itemCurrency =
+            item.variant?.currencyCode ?? item.product?.currencyCode ?? widget.currencyCode;
 
         final String? directFormattedMain = (displayQty == 1 && localTotalAddon == 0)
             ? (hasRealDiscount
-                ? (item.variant?.formattedSpecialPrice != null && item.variant!.formattedSpecialPrice!.isNotEmpty
-                    ? item.variant!.formattedSpecialPrice
-                    : null)
-                : (item.variant?.formattedPrice != null && item.variant!.formattedPrice!.isNotEmpty
-                    ? item.variant!.formattedPrice
-                    : null))
+                  ? (item.variant?.formattedSpecialPrice != null &&
+                            item.variant!.formattedSpecialPrice!.isNotEmpty
+                        ? item.variant!.formattedSpecialPrice
+                        : null)
+                  : (item.variant?.formattedPrice != null &&
+                            item.variant!.formattedPrice!.isNotEmpty
+                        ? item.variant!.formattedPrice
+                        : null))
             : null;
         final String? directFormattedRegular = (displayQty == 1 && localTotalAddon == 0)
             ? (item.variant?.formattedPrice != null && item.variant!.formattedPrice!.isNotEmpty
-                ? item.variant!.formattedPrice
-                : null)
+                  ? item.variant!.formattedPrice
+                  : null)
             : null;
 
         final String formattedMain = PriceUtils.formatPrice(
@@ -1168,7 +1194,6 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                   formattedRegular,
                   style: TextStyle(
                     fontSize: isTablet(context) ? 16 : 11.sp,
-                    fontFamily: AppTheme.fontFamily,
                     color: widget.originalPriceColor ?? Colors.grey[600],
                     decoration: TextDecoration.lineThrough,
                     decorationColor: Colors.grey[600],
@@ -1186,7 +1211,6 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                 style: TextStyle(
                   fontSize: isTablet(context) ? 20 : 14.sp,
                   fontWeight: FontWeight.w700,
-                  fontFamily: AppTheme.fontFamily,
                 ),
                 minFontSize: isTablet(context) ? 14 : 10.sp,
                 textAlign: TextAlign.end,
@@ -1233,23 +1257,21 @@ class _StoreCartSectionState extends State<StoreCartSection> {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
-            color: isDarkMode(context) ? Colors.grey.shade800.withValues(alpha: 0.4) : Colors.blueGrey.shade50,
+            color: isDarkMode(context)
+                ? Colors.grey.shade800.withValues(alpha: 0.4)
+                : Colors.blueGrey.shade50,
             borderRadius: BorderRadius.circular(15),
           ),
           child: Column(
             children: [
               Row(
                 children: [
-                  Icon(
-                    TablerIcons.paperclip,
-                    size: 16,
-                    color: Colors.grey.shade500,
-                  ),
+                  Icon(TablerIcons.paperclip, size: 16, color: Colors.grey.shade500),
                   const SizedBox(width: 5),
                   Text(
                     context.tr('attachments', fallback: 'Attachments'),
                     style: const TextStyle(fontWeight: FontWeight.w500),
-                  )
+                  ),
                 ],
               ),
               ...attachments.map((attachment) => _buildSingleAttachment(item, attachment)),
@@ -1427,18 +1449,12 @@ class _StoreCartSectionState extends State<StoreCartSection> {
               children: [
                 Text(
                   context.tr('addAttachment', fallback: 'Add Attachment'),
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   context.tr('chooseFileTypeToUpload', fallback: 'Choose file type to upload'),
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 12.sp, color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 20),
                 _buildAttachmentOption(
@@ -1516,26 +1532,17 @@ class _StoreCartSectionState extends State<StoreCartSection> {
                 children: [
                   Text(
                     label,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      color: Colors.grey.shade600,
-                    ),
+                    style: TextStyle(fontSize: 11.sp, color: Colors.grey.shade600),
                   ),
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: Colors.grey.shade400,
-            ),
+            Icon(Icons.chevron_right, color: Colors.grey.shade400),
           ],
         ),
       ),
@@ -1546,14 +1553,9 @@ class _StoreCartSectionState extends State<StoreCartSection> {
     List<PlatformFile> result = [];
 
     if (fileType == 'image') {
-      result = await FilePicker.pickFiles(
-        type: FileType.image,
-      );
+      result = await FilePicker.pickFiles(type: FileType.image);
     } else if (fileType == 'pdf') {
-      result = await FilePicker.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ['pdf'],
-      );
+      result = await FilePicker.pickFiles(type: FileType.custom, allowedExtensions: ['pdf']);
     } else if (fileType == 'docx') {
       result = await FilePicker.pickFiles(
         type: FileType.custom,
@@ -1609,24 +1611,25 @@ class _StoreCartSectionState extends State<StoreCartSection> {
     log('New Attachments 2 $newAttachments');
 
     if (newAttachments.isNotEmpty && mounted) {
-      context.read<AttachmentBloc>().add(AddAttachments(
-            productId: item.productId ?? item.id!,
-            attachment: newAttachments,
-          ));
+      context.read<AttachmentBloc>().add(
+        AddAttachments(productId: item.productId ?? item.id!, attachment: newAttachments),
+      );
     }
   }
 
   Future<void> _openAttachment(CartItemAttachment attachment) async {
     try {
-      final result = await OpenFilex.open(
-        attachment.filePath,
-      );
+      final result = await OpenFilex.open(attachment.filePath);
 
       if (result.type != ResultType.done) {
         if (mounted) {
           ToastManager.show(
             context: context,
-            message: context.tr('cannotOpenFile', positionalArgs: [result.message], fallback: 'Cannot open file: ${result.message}'),
+            message: context.tr(
+              'cannotOpenFile',
+              positionalArgs: [result.message],
+              fallback: 'Cannot open file: ${result.message}',
+            ),
             type: ToastType.error,
           );
         }
@@ -1635,7 +1638,11 @@ class _StoreCartSectionState extends State<StoreCartSection> {
       if (mounted) {
         ToastManager.show(
           context: context,
-          message: context.tr('errorOpeningAttachment', positionalArgs: [e.toString()], fallback: 'Error opening file: $e'),
+          message: context.tr(
+            'errorOpeningAttachment',
+            positionalArgs: [e.toString()],
+            fallback: 'Error opening file: $e',
+          ),
           type: ToastType.error,
         );
       }
@@ -1644,11 +1651,8 @@ class _StoreCartSectionState extends State<StoreCartSection> {
 
   void _removeSingleAttachment(CartItem item, CartItemAttachment attachment) {
     context.read<AttachmentBloc>().add(
-          RemoveAttachment(
-            productId: item.productId ?? item.id!,
-            attachment: attachment,
-          ),
-        );
+      RemoveAttachment(productId: item.productId ?? item.id!, attachment: attachment),
+    );
   }
 
   String _formatFileSize(int bytes) {
@@ -1670,7 +1674,6 @@ class HintWidget extends StatelessWidget {
         fontSize: isTablet(context) ? 14.sp : 10.sp,
         color: AppTheme.primaryColor,
         fontWeight: FontWeight.w600,
-        fontFamily: AppTheme.fontFamily,
       ),
     );
   }

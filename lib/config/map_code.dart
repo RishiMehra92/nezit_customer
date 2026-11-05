@@ -110,9 +110,15 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> with Ticker
   List<LocationSuggestion> _placeSuggestions = [];
   bool _isSearchingPlaces = false;
 
+  bool _isInitialEditLoad = true;
+
   @override
   void initState() {
     super.initState();
+
+    if (widget.isEdit && widget.initialAddress != null) {
+      _addressLine1Controller.text = widget.initialAddress!;
+    }
 
     _mobileFocusNode.addListener(() {
       if (_mobileFocusNode.hasFocus) {
@@ -336,7 +342,17 @@ class _LocationPickerWidgetState extends State<LocationPickerWidget> with Ticker
   }
 
   void _prefillFormFields(Placemark place) {
-    _addressLine1Controller.text = _currentAddress;
+    if (widget.isEdit && _isInitialEditLoad) {
+      _isInitialEditLoad = false;
+      if (widget.initialAddress != null && widget.initialAddress!.isNotEmpty) {
+        _addressLine1Controller.text = widget.initialAddress!;
+      } else {
+        _addressLine1Controller.clear();
+      }
+    } else {
+      _addressLine1Controller.clear();
+    }
+
     _stateController.text = place.administrativeArea ?? '';
     _cityController.text = place.locality ?? '';
     _zipcodeController.text = place.postalCode ?? '';

@@ -2066,7 +2066,11 @@ class _CartPageState extends State<CartPage> {
                             if (totalAmount <= 0 || selectedPaymentMethod != null) {
                               _processOrder(context);
                             } else {
-                              _navigateToPaymentOptions();
+                              setState(() {
+                                selectedPaymentMethod = 'razorpay';
+                                selectedPaymentMethodType = PaymentMethodType.razorpay;
+                              });
+                              _processOrder(context);
                             }
                           },
                           child: (isCartLoading || _isCartSyncing)
@@ -2094,10 +2098,9 @@ class _CartPageState extends State<CartPage> {
                                   ],
                                 )
                               : Text(
-                                  (selectedPaymentMethod != null || totalAmount <= 0.0)
+                                  (totalAmount <= 0.0)
                                       ? (context.tr('placeOrder', fallback: 'Place Order'))
-                                      : (context.tr('selectPaymentMethod',
-                                          fallback: 'Select payment method')),
+                                      : (context.tr('makePayment', fallback: 'Make Payment')),
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
